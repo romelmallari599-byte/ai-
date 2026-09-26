@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pole Lifting Cables</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1f;--mute:#6b6b70;--line:#d9d7d0;--pole:#b8741a;--ab:#2563eb;--ac:#dc2626;--w:#16a34a;--r:#7c3aed;--grid:#e7e5de}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141416;--card:#1e1e22;--ink:#ececf0;--mute:#9a9aa3;--line:#33333a;--pole:#e0a04a;--ab:#60a5fa;--ac:#f87171;--w:#4ade80;--r:#a78bfa;--grid:#2a2a30}}
+:root[data-theme="dark"]{--bg:#141416;--card:#1e1e22;--ink:#ececf0;--mute:#9a9aa3;--line:#33333a;--pole:#e0a04a;--ab:#60a5fa;--ac:#f87171;--w:#4ade80;--r:#a78bfa;--grid:#2a2a30}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.5rem;margin:0 0 4px}
+p.sub{color:var(--mute);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+canvas{width:100%;aspect-ratio:4/3;display:block;touch-action:none;cursor:grab}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+input[type=range]{flex:1;min-width:160px}
+button{background:var(--ink);color:var(--bg);border:0;border-radius:8px;padding:7px 14px;font:inherit;cursor:pointer}
+.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.stat:last-child{border:0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px}
+.big{font-weight:650}
+h2{font-size:1.05rem;margin:0 0 8px}
+.steps{margin-top:16px}
+.steps ol{padding-left:20px;margin:0}
+.steps li{margin-bottom:10px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background:var(--grid);padding:1px 5px;border-radius:4px}
+.ans{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+@media (max-width:560px){.ans{grid-template-columns:1fr}}
+.ans div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.ans b{display:block;font-size:1.35rem}
+.ans span{color:var(--mute);font-size:.85rem}
+.note{color:var(--mute);font-size:.88rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Situation 2: Lifting Pole AO</h1>
+<p class="sub">Pole AO = 12 m, W = 35 kN at mid-length, O is a ball-and-socket, lifted by cables AB and AC. Drag the view to rotate it.</p>
+
+<div class="ans">
+  <div><span>Tension in AB (θ = 60°)</span><b style="color:var(--ab)">32.88 kN</b></div>
+  <div><span>Tension in AC (θ = 60°)</span><b style="color:var(--ac)">15.27 kN</b></div>
+  <div><span>Resultant reaction at O</span><b style="color:var(--r)">76.28 kN</b></div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <canvas id="cv" width="800" height="600"></canvas>
+    <div class="controls">
+      <button id="play">Pause</button>
+      <label for="th">θ</label>
+      <input id="th" type="range" min="5" max="85" step="0.5" value="60">
+      <span id="thv" class="big">60.0°</span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Live results</h2>
+    <div class="stat"><span><i class="sw" style="background:var(--ab)"></i>T<sub>AB</sub></span><span id="tab" class="big"></span></div>
+    <div class="stat"><span><i class="sw" style="background:var(--ac)"></i>T<sub>AC</sub></span><span id="tac" class="big"></span></div>
+    <div class="stat"><span><i class="sw" style="background:var(--r)"></i>O<sub>x</sub>, O<sub>y</sub>, O<sub>z</sub></span><span id="ocomp"></span></div>
+    <div class="stat"><span><i class="sw" style="background:var(--r)"></i>|R<sub>O</sub>|</span><span id="ro" class="big"></span></div>
+    <div class="stat"><span>A (x, y, z)</span><span id="apos"></span></div>
+    <p class="note">The animation sweeps θ (angle of the pole from the y-axis) and re-solves equilibrium at every frame. Press Pause to lock θ at 60° and read the exam values.</p>
+  </div>
+</div>
+
+<div class="card steps">
+  <h2>Solution at θ = 60°</h2>
+  <ol>
+    <li><b>Coordinates</b> (from the figure): O(0, 0, 0), A(0, 12cos60°, 12sin60°) = <code>(0, 6, 10.392)</code>, B <code>(−2.6, −3, 0)</code>, C <code>(6, −3, 0)</code>, W acts at the midpoint G <code>(0, 3, 5.196)</code>.</li>
+    <li><b>Unit vectors.</b> AB = (−2.6, −9, −10.392), |AB| = 13.99 m → u<sub>AB</sub> = (−0.1858, −0.6433, −0.7428).<br>
+        AC = (6, −9, −10.392), |AC| = 15.00 m → u<sub>AC</sub> = (0.4000, −0.6000, −0.6928).</li>
+    <li><b>ΣM<sub>O</sub> = 0</b>: r<sub>OA</sub> × (T<sub>AB</sub>u<sub>AB</sub> + T<sub>AC</sub>u<sub>AC</sub>) + r<sub>OG</sub> × W = 0.
+      <br>y-moment: −1.9310 T<sub>AB</sub> + 4.1569 T<sub>AC</sub> = 0 → T<sub>AC</sub> = 0.4645 T<sub>AB</sub>
+      <br>x-moment: 6(−0.7428)T<sub>AB</sub> − 10.392(−0.6433)T<sub>AB</sub> + [6(−0.6928) − 10.392(−0.6)]T<sub>AC</sub> = 105 → 2.2283 T<sub>AB</sub> + 2.0785 T<sub>AC</sub> = 105</li>
+    <li><b>Solve:</b> T<sub>AB</sub> = <b>32.88 kN</b>, T<sub>AC</sub> = <b>15.27 kN</b>.</li>
+    <li><b>ΣF = 0 at O:</b> O<sub>x</sub> = 0, O<sub>y</sub> = 30.31 kN, O<sub>z</sub> = 70.00 kN → R<sub>O</sub> = √(30.31² + 70²) = <b>76.28 kN</b>.</li>
+  </ol>
+  <p class="note">Assumes B = (−2.6, −3, 0) and C = (6, −3, 0) as read from the dimension lines (6 m and 3 m locate C; 2.6 m locates B on the same −3 m line). If your answer key uses different coordinates, change B and C at the top of the script.</p>
+</div>
+</main>
+
+<script>
+// Geometry (m, kN) — edit here if the figure is read differently
+const L = 12, W = 35, B = [-2.6, -3, 0], C = [6, -3, 0];
+
+const sub=(a,b)=>a.map((v,i)=>v-b[i]), norm=a=>Math.hypot(...a), unit=a=>a.map(v=>v/norm(a));
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+
+function solve(thDeg){
+  const t=thDeg*Math.PI/180, A=[0,L*Math.cos(t),L*Math.sin(t)], G=A.map(v=>v/2);
+  const uB=unit(sub(B,A)), uC=unit(sub(C,A)), m1=cross(A,uB), m2=cross(A,uC), r=cross(G,[0,0,-W]).map(v=>-v);
+  let TB=0,TC=0;
+  for(const [i,j] of [[0,1],[0,2],[1,2]]){const d=m1[i]*m2[j]-m2[i]*m1[j]; if(Math.abs(d)>1e-9){TB=(r[i]*m2[j]-m2[i]*r[j])/d; TC=(m1[i]*r[j]-r[i]*m1[j])/d; break;}}
+  const R=[0,1,2].map(i=>-(TB*uB[i]+TC*uC[i]+(i===2?-W:0)));
+  return {A,G,uB,uC,TB,TC,R};
+}
+
+// Canvas + simple 3D projection
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let yaw=0.55, pitch=0.35, th=60, playing=true, tAnim=0;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function proj(p){
+  // world: x, y horizontal, z up
+  const cy=Math.cos(yaw), sy=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch);
+  const x1=p[0]*cy-p[1]*sy, y1=p[0]*sy+p[1]*cy;
+  const depth=y1*cp+p[2]*sp, up=p[2]*cp-y1*sp;
+  const s=cv.width/19, f=1+depth*0.015;
+  return [cv.width/2+x1*s/f*1.0, cv.height*0.78-up*s/f];
+}
+function line(a,b,col,w=2,dash){ctx.beginPath();ctx.setLineDash(dash||[]);ctx.strokeStyle=col;ctx.lineWidth=w;const p=proj(a),q=proj(b);ctx.moveTo(...p);ctx.lineTo(...q);ctx.stroke();ctx.setLineDash([]);}
+function arrow(from,vec,col,label){
+  const to=from.map((v,i)=>v+vec[i]); line(from,to,col,3);
+  const p=proj(from),q=proj(to),ang=Math.atan2(q[1]-p[1],q[0]-p[0]);
+  ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(...q);
+  ctx.lineTo(q[0]-12*Math.cos(ang-0.4),q[1]-12*Math.sin(ang-0.4));
+  ctx.lineTo(q[0]-12*Math.cos(ang+0.4),q[1]-12*Math.sin(ang+0.4));ctx.fill();
+  if(label){ctx.font='600 15px system-ui';ctx.fillText(label,q[0]+6,q[1]-6);}
+}
+function dot(p,col,label){const q=proj(p);ctx.fillStyle=col;ctx.beginPath();ctx.arc(q[0],q[1],5,0,7);ctx.fill();if(label){ctx.fillStyle=css('--ink');ctx.font='600 16px system-ui';ctx.fillText(label,q[0]+8,q[1]-8);}}
+
+function draw(){
+  const s=solve(th), ink=css('--ink'), mute=css('--mute'), grid=css('--grid');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  for(let i=-8;i<=10;i+=2){line([i,-8,0],[i,10,0],grid,1);line([-8,i,0],[10,i,0],grid,1);}
+  line([0,0,0],[10,0,0],mute,1.5);line([0,0,0],[0,10,0],mute,1.5);line([0,0,0],[0,0,12],mute,1.5);
+  ctx.fillStyle=mute;ctx.font='14px system-ui';
+  [['x',[10.4,0,0]],['y',[0,10.4,0]],['z',[0,0,12.4]]].forEach(([t,p])=>{const q=proj(p);ctx.fillText(t,q[0],q[1]);});
+  // dimension guides
+  line(B,[0,-3,0],mute,1,[4,4]);line(C,[0,-3,0],mute,1,[4,4]);line(C,[6,0,0],mute,1,[4,4]);
+  line([s.A[0],s.A[1],0],s.A,mute,1,[3,5]);
+  // cables & pole
+  line(s.A,B,css('--ab'),2.5);line(s.A,C,css('--ac'),2.5);
+  line([0,0,0],s.A,css('--pole'),8);
+  // forces (scaled)
+  const k=0.12;
+  arrow(s.A,s.uB.map(v=>v*s.TB*k),css('--ab'),'T_AB');
+  arrow(s.A,s.uC.map(v=>v*s.TC*k),css('--ac'),'T_AC');
+  arrow(s.G,[0,0,-W*k],css('--w'),'W');
+  arrow([0,0,0],s.R.map(v=>v*k*0.6),css('--r'),'R_O');
+  dot([0,0,0],ink,'O');dot(s.A,ink,'A');dot(B,ink,'B');dot(C,ink,'C');dot(s.G,css('--w'));
+  // theta arc
+  ctx.strokeStyle=ink;ctx.lineWidth=1.2;ctx.beginPath();
+  for(let a=0;a<=th;a+=2){const r=2.2,p=proj([0,r*Math.cos(a*Math.PI/180),r*Math.sin(a*Math.PI/180)]);a?ctx.lineTo(...p):ctx.moveTo(...p);}ctx.stroke();
+  const tp=proj([0,2.8*Math.cos(th*Math.PI/360),2.8*Math.sin(th*Math.PI/360)]);ctx.fillStyle=ink;ctx.font='15px system-ui';ctx.fillText('θ',...tp);
+
+  const f=v=>v.toFixed(2);
+  document.getElementById('tab').textContent=f(s.TB)+' kN';
+  document.getElementById('tac').textContent=f(s.TC)+' kN';
+  document.getElementById('ocomp').textContent=s.R.map(v=>f(Math.abs(v)<5e-3?0:v)).join(', ');
+  document.getElementById('ro').textContent=f(norm(s.R))+' kN';
+  document.getElementById('apos').textContent=s.A.map(f).join(', ');
+  document.getElementById('thv').textContent=th.toFixed(1)+'°';
+  document.getElementById('th').value=th;
+}
+
+function loop(ts){
+  if(playing){tAnim+=1/60; th=45+37*Math.sin(tAnim*0.7); yaw+=0.0015;}
+  draw(); requestAnimationFrame(loop);
+}
+document.getElementById('play').onclick=e=>{playing=!playing;e.target.textContent=playing?'Pause':'Play';if(!playing)th=60;};
+document.getElementById('th').oninput=e=>{playing=false;document.getElementById('play').textContent='Play';th=+e.target.value;};
+let drag=null;
+cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointermove',e=>{if(!drag)return;yaw+=(e.clientX-drag[0])*0.01;pitch=Math.max(-0.2,Math.min(1.3,pitch+(e.clientY-drag[1])*0.01));drag=[e.clientX,e.clientY];});
+cv.addEventListener('pointerup',()=>drag=null);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
